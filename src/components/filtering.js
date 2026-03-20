@@ -1,7 +1,5 @@
+// src/components/filtering.js
 import {createComparison, defaultRules} from "../lib/compare.js";
-
-// @todo: #4.3 — настроить компаратор
-const compare = createComparison(defaultRules);
 
 export function initFiltering(elements, indexes) {
     // @todo: #4.1 — заполнить выпадающие списки опциями
@@ -27,7 +25,24 @@ export function initFiltering(elements, indexes) {
             }
         }
 
+        // @todo: #4.3 — настроить компаратор
+        const compare = createComparison(defaultRules);
+        
+        // Подготавливаем состояние для сравнения диапазона суммы
+        const filterState = {...state};
+        
+        // Преобразуем totalFrom и totalTo в массив для правила arrayAsRange
+        if (filterState.totalFrom !== undefined || filterState.totalTo !== undefined) {
+            const from = filterState.totalFrom !== '' ? Number(filterState.totalFrom) : '';
+            const to = filterState.totalTo !== '' ? Number(filterState.totalTo) : '';
+            filterState.total = [from, to];
+        }
+        
+        // Удаляем исходные поля, чтобы они не мешали сравнению
+        delete filterState.totalFrom;
+        delete filterState.totalTo;
+
         // @todo: #4.5 — отфильтровать данные используя компаратор
-        return data.filter(row => compare(row, state));
+        return data.filter(row => compare(row, filterState));
     }
 }
