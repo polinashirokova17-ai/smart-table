@@ -24,8 +24,7 @@ export function initSorting(columns) {
             });
         }
 
-        const sort = (field && order && order !== 'none') ? `${field}:${order}` : null;
-
-        return sort ? Object.assign({}, query, { sort }) : query;
+        const sort = (field && order !== 'none') ? `${field}:${order}` : null;
+        return sort ? { ...query, sort } : query;
     }
 }

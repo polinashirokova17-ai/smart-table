@@ -4,11 +4,16 @@ export const initPagination = ({pages, fromRow, toRow, totalRows}, createPage) =
     const pageTemplate = pages.firstElementChild.cloneNode(true);
     pages.firstElementChild.remove();
     
-    let pageCount = 1;
+    let pageCount;
+    let currentLimit;
+    let currentPage;
 
     const applyPagination = (query, state, action) => {
         const limit = state.rowsPerPage;
         let page = state.page;
+        
+        currentLimit = limit;
+        currentPage = page;
 
         if (action) {
             switch(action.name) {
@@ -27,38 +32,26 @@ export const initPagination = ({pages, fromRow, toRow, totalRows}, createPage) =
             }
         }
 
-        // Если страница изменилась, обновляем состояние
-        if (page !== state.page) {
-            const pageInput = pages.querySelector(`input[value="${page}"]`);
-            if (pageInput) {
-                pageInput.checked = true;
-            }
-        }
-
         return Object.assign({}, query, {
-            limit,
-            page
+            limit: limit,
+            page: page
         });
     }
 
     const updatePagination = (total, { page, limit }) => {
         pageCount = Math.ceil(total / limit);
         
-        // Убеждаемся, что page в допустимых пределах
-        page = Math.min(page, pageCount);
-        page = Math.max(1, page);
-
         const visiblePages = getPages(page, pageCount, 5);
         pages.replaceChildren(...visiblePages.map(pageNumber => {
             const el = pageTemplate.cloneNode(true);
             return createPage(el, pageNumber, pageNumber === page);
         }));
-
-        const startRow = total === 0 ? 0 : (page - 1) * limit + 1;
-        const endRow = Math.min(page * limit, total);
         
-        fromRow.textContent = startRow;
-        toRow.textContent = endRow;
+        const from = (page - 1) * limit + 1;
+        const to = Math.min(page * limit, total);
+        
+        fromRow.textContent = total > 0 ? from : 0;
+        toRow.textContent = total > 0 ? to : 0;
         totalRows.textContent = total;
     }
 
