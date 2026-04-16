@@ -23,14 +23,14 @@ export function initTable(settings, onAction) {
         root.container.append(root[subName].container);
     });
 
-    // @todo: #1.3 —  обработать события и вызвать onAction()
+    // Обработка событий
     root.container.addEventListener('change', () => {
-        onAction();
+        onAction(undefined);
     });
 
     root.container.addEventListener('reset', () => {
         setTimeout(() => {
-            onAction();
+            onAction(undefined);
         }, 0);
     });
 
@@ -40,7 +40,6 @@ export function initTable(settings, onAction) {
     });
 
     const render = (data) => {
-        // @todo: #1.1 — преобразовать данные в массив строк на основе шаблона rowTemplate
         const nextRows = data.map(item => {
             const row = cloneTemplate(rowTemplate);
             
@@ -53,7 +52,16 @@ export function initTable(settings, onAction) {
             return row.container;
         });
         
-        root.elements.rows.replaceChildren(...nextRows);
+        // Проверяем наличие элемента rows
+        if (root.elements.rows) {
+            root.elements.rows.replaceChildren(...nextRows);
+        } else {
+            // Если rows нет, ищем tbody
+            const tbody = root.container.querySelector('tbody');
+            if (tbody) {
+                tbody.replaceChildren(...nextRows);
+            }
+        }
     }
 
     return {...root, render};
